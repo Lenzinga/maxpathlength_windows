@@ -1,0 +1,34 @@
+@echo off
+:: ================================================================
+:: Batch file to enable Windows long path support
+:: This sets the LongPathsEnabled registry key so that Windows
+:: (and applications with appropriate manifests) can use extended
+:: path lengths (up to 32767 characters).
+::
+:: IMPORTANT: This does not set a custom limit of 780 characters.
+:: It simply allows paths longer than the traditional 260 character
+:: limit. Many apps must also be updated to opt in to long path support.
+:: ================================================================
+
+:: Check for administrator privileges
+>nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
+if '%errorlevel%' NEQ '0' (
+    echo This script must be run as Administrator.
+    pause
+    exit /b
+)
+
+echo Enabling long path support in Windows...
+
+:: Add or update the registry key for long path support
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
+
+if %errorlevel% EQU 0 (
+    echo Long path support has been enabled.
+    echo Note: This allows path lengths up to 32767 characters.
+    echo You may need to restart your computer for the change to take effect.
+) else (
+    echo Failed to update the registry. Please ensure you are running this as Administrator.
+)
+
+pause
